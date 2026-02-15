@@ -77,7 +77,7 @@ export default function Home() {
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <BrainCircuit className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight">PrepPulse AI</span>
+            <span className="text-xl font-bold tracking-tight">HireSim</span>
           </div>
           <nav className="hidden md:flex gap-6 text-sm font-medium text-slate-300">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
@@ -86,10 +86,7 @@ export default function Home() {
           </nav>
         </header>
 
-        {/* Main Content */}
         <div className="flex-1 grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-          
-          {/* Left Column: Hero Text */}
           <div className="space-y-8">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -241,8 +238,114 @@ export default function Home() {
               </form>
             </div>
           </motion.div>
-
         </div>
+
+        <motion.section
+          id="features"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6 }}
+          className="mt-24 md:mt-32 space-y-10"
+        >
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Features built for real prep</h2>
+            <p className="mt-3 text-slate-400">
+              Everything in HireSim is designed to feel like a real hiring loop,
+              not a toy chatbot.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                icon: BrainCircuit,
+                title: 'CV-aware questions',
+                desc: 'The agent reads your CV and targets questions to your stack, projects, and level.',
+              },
+              {
+                icon: Mic,
+                title: 'Voice-first experience',
+                desc: 'Speak and listen just like a real onsite. No copy-paste prompts or typing walls.',
+              },
+              {
+                icon: CheckCircle2,
+                title: 'Actionable feedback',
+                desc: 'Get structured scoring, strengths, and concrete next steps after each session.',
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="p-6 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg shadow-indigo-500/10 flex flex-col gap-3"
+              >
+                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                  <item.icon className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                <p className="text-sm text-slate-400">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        <motion.section
+          id="how-it-works"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6 }}
+          className="mt-24 md:mt-32 space-y-12"
+        >
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">How it works</h2>
+            <p className="mt-3 text-slate-400">
+              From CV upload to actionable feedback in four simple steps.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-4">
+            {[
+              {
+                icon: Upload,
+                title: 'Upload your CV',
+                desc: 'Drop in your PDF so the AI can understand your background.',
+              },
+              {
+                icon: Briefcase,
+                title: 'Set your target role',
+                desc: 'Tell HireSim what role you are preparing for.',
+              },
+              {
+                icon: Mic,
+                title: 'Join the live AI interview',
+                desc: 'Speak naturally with a voice-first interviewer that adapts to you.',
+              },
+              {
+                icon: CheckCircle2,
+                title: 'Review scores and feedback',
+                desc: 'Get a detailed breakdown with strengths, gaps, and next steps.',
+              },
+            ].map((step, index) => (
+              <div
+                key={step.title}
+                className="relative p-5 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg shadow-indigo-500/10"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400">
+                      <step.icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Step {index + 1}
+                    </span>
+                  </div>
+                </div>
+                <h3 className="font-semibold text-white mb-2">{step.title}</h3>
+                <p className="text-sm text-slate-400">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </motion.section>
       </div>
     </div>
   );
