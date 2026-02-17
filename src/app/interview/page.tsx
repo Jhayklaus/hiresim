@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, MicOff, Clock, PhoneOff, AlertCircle, Volume2 } from 'lucide-react';
@@ -19,6 +19,7 @@ export default function InterviewPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const {
     transcript,
@@ -72,9 +73,16 @@ export default function InterviewPage() {
     }
   }, [listening, transcript]);
 
+  const stopPlayback = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
+
   const handleEndInterview = () => {
     SpeechRecognition.stopListening();
-    window.speechSynthesis.cancel();
+    stopPlayback();
     router.push('/feedback');
   };
 
@@ -137,8 +145,8 @@ export default function InterviewPage() {
           setSession(newSession);
       }
 
-      // Speak response
-      speakResponse(responseText);
+      // Speak response using external TTS
+      await speakResponse(responseText);
 
     } catch (err) {
       console.error('Failed to generate response:', err);
@@ -148,43 +156,47 @@ export default function InterviewPage() {
     }
   };
 
-  const speakResponse = (text: string) => {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    
-    // Improved Voice Selection Logic
-    const voices = window.speechSynthesis.getVoices();
-    // Prefer "Google US English" or similar high-quality voices
-    const preferredVoice = voices.find(v => 
-      v.name.includes("Google US English") || 
-      v.name.includes("Google") ||
-      (v.name.includes("Natural") && v.lang.startsWith("en")) ||
-      v.name.includes("Samantha")
-    );
+  const speakResponse = async (text: string) => {
+    try {
+      stopPlayback();
+      setIsSpeaking(true);
 
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+        }),
+      });
 
-    // Adjust rate and pitch for more natural feel
-    utterance.rate = 1.0; 
-    utterance.pitch = 1.0; 
-    
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => {
+      if (!response.ok) {
+        throw new Error(`TTS request failed with status ${response.status}`);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      await audio.play();
+    } catch (error) {
+      console.error('Failed to play TTS audio', error);
       setIsSpeaking(false);
-      // Optional: Auto-start listening after bot finishes?
-      // SpeechRecognition.startListening({ continuous: true });
-    };
-    
-    window.speechSynthesis.speak(utterance);
+    }
   };
 
   const toggleListening = () => {
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
-      window.speechSynthesis.cancel();
+      stopPlayback();
       resetTranscript();
       SpeechRecognition.startListening({ continuous: true });
     }
