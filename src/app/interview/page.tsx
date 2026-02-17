@@ -114,7 +114,8 @@ export default function InterviewPage() {
       const { text: responseText, error } = await generateInterviewResponse(
         updatedHistory, 
         text || "START_INTERVIEW", 
-        candidateProfile
+        candidateProfile,
+        timeLeft
       );
 
       if (error) {
