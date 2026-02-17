@@ -11,7 +11,7 @@ import { generateFeedback as generateFeedbackAction } from '@/app/actions/deepse
 
 export default function FeedbackPage() {
   const router = useRouter();
-  const { session, setFeedback } = useAppStore();
+  const { session, setFeedback, resetSession } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>('strengths');
 
@@ -246,7 +246,10 @@ export default function FeedbackPage() {
               Download
             </button>
             <button
-              onClick={() => router.push('/')}
+              onClick={() => {
+                resetSession();
+                router.push('/');
+              }}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs md:text-sm font-semibold text-white flex items-center gap-2 shadow-lg shadow-indigo-600/30"
             >
               <ArrowLeft className="w-4 h-4" />

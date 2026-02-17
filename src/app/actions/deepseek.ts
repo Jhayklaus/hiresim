@@ -14,18 +14,24 @@ const openai = new OpenAI({
 export async function generateInterviewResponse(
   history: ChatMessage[], 
   newMessage: string, 
-  profile: CandidateProfile
+  profile: CandidateProfile,
+  timeLeftSeconds: number
 ): Promise<{ text: string; error?: string }> {
   try {
     if (!API_KEY) {
       return { text: '', error: 'Server configuration error: DeepSeek API Key missing' };
     }
 
+    const minutesLeft = Math.floor(timeLeftSeconds / 60);
+    const secondsLeft = timeLeftSeconds % 60;
+
     const systemPrompt = `
+      Your name is Mitch.
       You are a professional technical recruiter conducting a 10-minute video interview for a ${profile.jobRole} position.
       Candidate Name: ${profile.name}
       CV Content Snippet: ${profile.cvText.slice(0, 3000)}...
       Job Description: ${profile.jobDescription || "Standard industry requirements"}
+      Remaining time in the interview: approximately ${minutesLeft} minutes and ${secondsLeft} seconds.
       
       Your goal is to assess the candidate's technical skills, communication, and cultural fit.
       - Be professional but polite.
@@ -34,6 +40,7 @@ export async function generateInterviewResponse(
       - If the candidate's answer is vague, probe deeper.
       - Do not be repetitive.
       - If this is the start of the conversation, introduce yourself and ask them to introduce themselves.
+      - If there is about one minute left (60 seconds or less), clearly tell the candidate that time is almost up and begin to wrap up the interview with a final question or summary.
     `;
 
     // Convert internal ChatMessage to OpenAI/DeepSeek format
