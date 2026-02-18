@@ -30,6 +30,10 @@ export async function parseCV(formData: FormData): Promise<{ text: string; error
     return { text: data.text };
   } catch (error) {
     console.error('Error parsing PDF:', error);
-    return { text: '', error: 'Failed to parse PDF' };
+    const message =
+      error instanceof Error && error.message
+        ? `Failed to parse PDF: ${error.message}`
+        : 'Failed to parse PDF';
+    return { text: '', error: message };
   }
 }
