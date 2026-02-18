@@ -2,6 +2,38 @@
 
 type DOMMatrixLike = new (...args: unknown[]) => unknown;
 
+async function parsePdfWithPdf2Json(buffer: Buffer): Promise<string> {
+  const pdf2jsonModule = (await import('pdf2json')) as unknown as {
+    default: new (...args: unknown[]) => {
+      on: (event: string, cb: (data: unknown) => void) => void;
+      parseBuffer: (buffer: Buffer) => void;
+      getRawTextContent: () => string;
+    };
+  };
+
+  const PDFParser = pdf2jsonModule.default;
+  const pdfParser = new PDFParser(undefined, 1);
+
+  const text = await new Promise<string>((resolve, reject) => {
+    pdfParser.on('pdfParser_dataError', (errData: unknown) => {
+      reject(errData);
+    });
+
+    pdfParser.on('pdfParser_dataReady', () => {
+      try {
+        const raw = pdfParser.getRawTextContent();
+        resolve(raw);
+      } catch (e) {
+        reject(e);
+      }
+    });
+
+    pdfParser.parseBuffer(buffer);
+  });
+
+  return text;
+}
+
 export async function parseCV(formData: FormData): Promise<{ text: string; error?: string }> {
   try {
     const file = formData.get('file') as File;
@@ -21,13 +53,9 @@ export async function parseCV(formData: FormData): Promise<{ text: string; error
       globalWithDOMMatrix.DOMMatrix = DOMMatrixPolyfill as DOMMatrixLike;
     }
 
-    const { PDFParse } = await import('pdf-parse');
-    const parser = new PDFParse({ data: buffer });
-    const data = await parser.getText();
+    const text = await parsePdfWithPdf2Json(buffer);
 
-    await parser.destroy();
-
-    return { text: data.text };
+    return { text };
   } catch (error) {
     console.error('Error parsing PDF:', error);
     const message =
