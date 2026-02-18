@@ -82,7 +82,7 @@ export default function Home() {
           <nav className="hidden md:flex gap-6 text-sm font-medium text-slate-300">
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-white transition-colors">How it Works</a>
-            <a href="https://github.com" target="_blank" className="hover:text-white transition-colors">GitHub</a>
+            <a href="https://github.com/Jhayklaus/hiresim" target="_blank" className="hover:text-white transition-colors">GitHub</a>
           </nav>
         </header>
 
