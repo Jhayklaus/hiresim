@@ -1,6 +1,7 @@
 'use server';
 
 type DOMMatrixLike = new (...args: unknown[]) => unknown;
+type PdfParseWorkerModule = typeof import('pdf-parse/worker');
 
 export async function parseCV(formData: FormData): Promise<{ text: string; error?: string }> {
   try {
@@ -22,6 +23,9 @@ export async function parseCV(formData: FormData): Promise<{ text: string; error
     }
 
     const { PDFParse } = await import('pdf-parse');
+    const worker: PdfParseWorkerModule = await import('pdf-parse/worker');
+    PDFParse.setWorker(worker.getPath());
+
     const parser = new PDFParse({ data: buffer });
     const data = await parser.getText();
 
